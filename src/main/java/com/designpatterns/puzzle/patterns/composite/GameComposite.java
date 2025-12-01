@@ -4,10 +4,7 @@ import javafx.scene.canvas.GraphicsContext;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Composite Pattern - Composite pour grouper plusieurs composants
- * Peut contenir d'autres composants (feuilles ou composites)
- */
+
 public class GameComposite implements GameComponent {
     
     private List<GameComponent> children;
@@ -20,7 +17,6 @@ public class GameComposite implements GameComponent {
     
     @Override
     public void update(double deltaTime) {
-        // Met à jour tous les enfants
         for (GameComponent child : children) {
             child.update(deltaTime);
         }
@@ -28,7 +24,6 @@ public class GameComposite implements GameComponent {
     
     @Override
     public void render(GraphicsContext gc) {
-        // Rend tous les enfants
         for (GameComponent child : children) {
             child.render(gc);
         }
@@ -61,9 +56,7 @@ public class GameComposite implements GameComponent {
         return name;
     }
     
-    /**
-     * Retire tous les enfants
-     */
+   
     public void clear() {
         children.clear();
     }
