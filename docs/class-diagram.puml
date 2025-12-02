@@ -1,0 +1,348 @@
+@startuml PuzzleGame_ClassDiagram
+
+' ============================================
+' TITRE
+' ============================================
+title Puzzle Game - Design Patterns Architecture\n(State, Decorator, Composite, Factory, Singleton)
+
+' ============================================
+' SINGLETON PATTERN - GameLogger
+' ============================================
+package "Singleton Pattern" #LightBlue {
+    class GameLogger <<Singleton>> {
+        - {static} instance : GameLogger
+        - logger : Logger
+        - GameLogger()
+        + {static} getInstance() : GameLogger
+        + logInfo(message : String)
+        + logStateChange(context, from, to)
+        + logDecoratorApplied(type, target)
+        + logDecoratorRemoved(type, target)
+        + logGameEvent(event : String)
+        + logObjectCreation(type, details)
+        + logError(message, exception)
+        + logFinalScore(score, level, lines)
+    }
+}
+
+' ============================================
+' SINGLETON PATTERN - GameManager
+' ============================================
+package "Singleton Pattern" #LightBlue {
+    class GameManager <<Singleton>> {
+        - {static} instance : GameManager
+        - gameContext : GameContext
+        - initialized : boolean
+        - GameManager()
+        + {static} getInstance() : GameManager
+        + initialize()
+        + startNewGame()
+        + pauseGame()
+        + resumeGame()
+        + update(deltaTime)
+        + handleInput(input)
+    }
+}
+
+' ============================================
+' STATE PATTERN
+' ============================================
+package "State Pattern" #LightGreen {
+    interface GameState {
+        + enter(context : GameContext)
+        + update(context : GameContext, deltaTime : double)
+        + handleInput(context : GameContext, input : String)
+        + exit(context : GameContext)
+        + getStateName() : String
+    }
+    
+    class MenuState {
+        + enter(context)
+        + update(context, deltaTime)
+        + handleInput(context, input)
+        + exit(context)
+        + getStateName() : String
+    }
+    
+    class PlayingState {
+        + enter(context)
+        + update(context, deltaTime)
+        + handleInput(context, input)
+        + exit(context)
+        + getStateName() : String
+    }
+    
+    class PausedState {
+        + enter(context)
+        + update(context, deltaTime)
+        + handleInput(context, input)
+        + exit(context)
+        + getStateName() : String
+    }
+    
+    class GameOverState {
+        + enter(context)
+        + update(context, deltaTime)
+        + handleInput(context, input)
+        + exit(context)
+        + getStateName() : String
+    }
+    
+    class GameContext {
+        - currentState : GameState
+        - grid : GameGrid
+        - currentPiece : ActivePiece
+        - nextPiece : PuzzlePiece
+        - score : int
+        - level : int
+        - linesCleared : int
+        - fallSpeed : double
+        + setState(newState : GameState)
+        + update(deltaTime)
+        + handleInput(input)
+        + initializeGame()
+        + updateGame(deltaTime)
+        + movePieceLeft()
+        + movePieceRight()
+        + movePieceDown()
+        + rotatePiece()
+        + dropPiece()
+    }
+}
+
+GameState <|.. MenuState
+GameState <|.. PlayingState
+GameState <|.. PausedState
+GameState <|.. GameOverState
+GameContext --> GameState : uses
+
+' ============================================
+' DECORATOR PATTERN
+' ============================================
+package "Decorator Pattern" #LightYellow {
+    interface PuzzlePiece {
+        + render(gc, x, y, blockSize)
+        + getColor() : Color
+        + getShape() : int[][]
+        + getScoreMultiplier() : int
+        + hasSpecialEffect() : boolean
+        + getDescription() : String
+    }
+    
+    class BasicPuzzlePiece {
+        # color : Color
+        # shape : int[][]
+        # type : String
+        + render(gc, x, y, blockSize)
+        + getColor() : Color
+        + getShape() : int[][]
+        + getScoreMultiplier() : int
+        + hasSpecialEffect() : boolean
+        + getDescription() : String
+    }
+    
+    abstract class PuzzlePieceDecorator {
+        # decoratedPiece : PuzzlePiece
+        + PuzzlePieceDecorator(piece)
+        + render(gc, x, y, blockSize)
+        + getColor() : Color
+        + getShape() : int[][]
+        + getScoreMultiplier() : int
+        + hasSpecialEffect() : boolean
+        + getDescription() : String
+    }
+    
+    class GoldenPieceDecorator {
+        - applicationTime : long
+        + render(gc, x, y, blockSize)
+        + getScoreMultiplier() : int
+        + hasSpecialEffect() : boolean
+        + getDescription() : String
+    }
+    
+    class BombPieceDecorator {
+        + render(gc, x, y, blockSize)
+        + hasSpecialEffect() : boolean
+        + getDescription() : String
+    }
+    
+    class RainbowPieceDecorator {
+        - hueShift : double
+        + render(gc, x, y, blockSize)
+        + getScoreMultiplier() : int
+        + hasSpecialEffect() : boolean
+        + getDescription() : String
+    }
+}
+
+PuzzlePiece <|.. BasicPuzzlePiece
+PuzzlePiece <|.. PuzzlePieceDecorator
+PuzzlePieceDecorator <|-- GoldenPieceDecorator
+PuzzlePieceDecorator <|-- BombPieceDecorator
+PuzzlePieceDecorator <|-- RainbowPieceDecorator
+PuzzlePieceDecorator o--> PuzzlePiece : decorates
+
+' ============================================
+' FACTORY PATTERN
+' ============================================
+package "Factory Pattern" #LightPink {
+    class PieceFactory <<Factory>> {
+        + {static} createPiece(type : PieceType) : PuzzlePiece
+        + {static} createRandomPiece() : PuzzlePiece
+        - {static} createIPiece() : PuzzlePiece
+        - {static} createOPiece() : PuzzlePiece
+        - {static} createTPiece() : PuzzlePiece
+        - {static} createSPiece() : PuzzlePiece
+        - {static} createZPiece() : PuzzlePiece
+        - {static} createJPiece() : PuzzlePiece
+        - {static} createLPiece() : PuzzlePiece
+    }
+    
+    class PowerUpFactory <<Factory>> {
+        + {static} applyRandomPowerUp(piece) : PuzzlePiece
+        + {static} applyPowerUp(piece, type) : PuzzlePiece
+        + {static} applyMultiplePowerUps(piece, types) : PuzzlePiece
+    }
+    
+    enum PieceType {
+        I
+        O
+        T
+        S
+        Z
+        J
+        L
+    }
+    
+    enum PowerUpType {
+        GOLDEN
+        BOMB
+        RAINBOW
+    }
+}
+
+PieceFactory ..> BasicPuzzlePiece : creates
+PieceFactory --> PieceType : uses
+PowerUpFactory ..> PuzzlePieceDecorator : creates
+PowerUpFactory --> PowerUpType : uses
+
+' ============================================
+' COMPOSITE PATTERN
+' ============================================
+package "Composite Pattern" #Lavender {
+    interface GameComponent {
+        + update(deltaTime)
+        + render(gc : GraphicsContext)
+        + add(component : GameComponent)
+        + remove(component : GameComponent)
+        + getChild(index : int) : GameComponent
+        + getChildCount() : int
+    }
+    
+    abstract class GameLeaf {
+        + add(component)
+        + remove(component)
+        + getChild(index)
+        + getChildCount() : int
+        + {abstract} update(deltaTime)
+        + {abstract} render(gc)
+    }
+    
+    class GameComposite {
+        - children : List<GameComponent>
+        - name : String
+        + update(deltaTime)
+        + render(gc)
+        + add(component)
+        + remove(component)
+        + getChild(index) : GameComponent
+        + getChildCount() : int
+        + clear()
+    }
+}
+
+GameComponent <|.. GameLeaf
+GameComponent <|.. GameComposite
+GameComposite o--> GameComponent : contains
+
+' ============================================
+' MODEL - Core Classes
+' ============================================
+package "Model" #LightCyan {
+    class GameGrid {
+        - grid : Color[][]
+        - width : int
+        - height : int
+        + clear()
+        + isEmpty(row, col) : boolean
+        + setBlock(row, col, color)
+        + getBlock(row, col) : Color
+        + canPlacePiece(piece) : boolean
+        + placePiece(piece)
+        + isLineComplete(row) : boolean
+        + clearLine(row)
+        + clearCompleteLines() : int
+        + isGameOver() : boolean
+    }
+    
+    class ActivePiece {
+        - piece : PuzzlePiece
+        - x : int
+        - y : int
+        - rotation : int
+        + moveLeft()
+        + moveRight()
+        + moveDown()
+        + rotate()
+        + getCurrentShape() : int[][]
+    }
+}
+
+ActivePiece --> PuzzlePiece : uses
+GameContext --> GameGrid : has
+GameContext --> ActivePiece : has
+
+' ============================================
+' VIEW
+' ============================================
+package "View" #Wheat {
+    class GameView {
+        - canvas : Canvas
+        - gc : GraphicsContext
+        - gameManager : GameManager
+        + render()
+        - renderMenu()
+        - renderGame(context)
+        - renderGrid(grid)
+        - renderCurrentPiece(piece)
+        - renderHUD(context)
+        - renderNextPiece(piece)
+        - renderPauseOverlay()
+        - renderGameOverOverlay(context)
+    }
+    
+    class PuzzleGameApplication {
+        - gameManager : GameManager
+        - gameView : GameView
+        - logger : GameLogger
+        + start(primaryStage : Stage)
+        - handleKeyPress(code : KeyCode)
+        + {static} main(args : String[])
+    }
+}
+
+GameView --> GameManager : uses
+PuzzleGameApplication --> GameManager : uses
+PuzzleGameApplication --> GameView : uses
+PuzzleGameApplication --> GameLogger : uses
+
+' ============================================
+' RELATIONSHIPS
+' ============================================
+GameManager --> GameContext : manages
+GameManager --> GameLogger : uses
+GameContext --> GameLogger : uses
+PieceFactory --> GameLogger : uses
+PowerUpFactory --> GameLogger : uses
+
+@enduml
