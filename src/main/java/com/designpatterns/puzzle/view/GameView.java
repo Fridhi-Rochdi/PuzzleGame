@@ -73,185 +73,113 @@ public class GameView {
     }
     
     /**
-     * Rend le menu principal style Tetris moderne avec effets néon et animations
+     * Rend le menu principal professionnel minimaliste de niveau international
      */
     private void renderMenu() {
-        // Grille décorative animée en arrière-plan
-        gc.setStroke(Color.rgb(30, 30, 30));
-        gc.setLineWidth(1);
-        double offset = (menuPulseTime * 5) % 30;
-        for (int i = -(int)offset; i < canvas.getWidth(); i += 30) {
+        // Grille subtile très discrète
+        gc.setStroke(Color.rgb(15, 15, 15));
+        gc.setLineWidth(0.5);
+        for (int i = 0; i < canvas.getWidth(); i += 40) {
             gc.strokeLine(i, 0, i, canvas.getHeight());
         }
-        for (int i = -(int)offset; i < canvas.getHeight(); i += 30) {
+        for (int i = 0; i < canvas.getHeight(); i += 40) {
             gc.strokeLine(0, i, canvas.getWidth(), i);
         }
         
-        // Étoiles scintillantes en arrière-plan
-        for (int i = 0; i < 30; i++) {
-            double starX = (i * 73) % canvas.getWidth();
-            double starY = (i * 97 + menuPulseTime * 2) % canvas.getHeight();
-            double starAlpha = (Math.sin(menuPulseTime + i) + 1) / 2 * 0.5;
-            gc.setFill(Color.rgb(255, 255, 255, starAlpha));
-            gc.fillOval(starX, starY, 2, 2);
+        // Particules subtiles animées
+        for (int i = 0; i < 15; i++) {
+            double particleX = (i * 117 + menuPulseTime * 3) % canvas.getWidth();
+            double particleY = (i * 143) % canvas.getHeight();
+            double particleAlpha = (Math.sin(menuPulseTime * 0.5 + i) + 1) / 2 * 0.15;
+            gc.setFill(Color.rgb(100, 150, 200, particleAlpha));
+            gc.fillOval(particleX, particleY, 3, 3);
         }
         
-        // Logo "TETRIS" style avec blocs colorés
-        double logoX = 80;
-        double logoY = 80;
-        Color[] tetrisColors = {
-            Color.CYAN, Color.YELLOW, Color.MAGENTA, 
-            Color.LIME, Color.RED, Color.BLUE, Color.ORANGE
-        };
+        // === TITRE PRINCIPAL ÉLÉGANT ===
+        double centerX = canvas.getWidth() / 2;
+        double titleY = 150;
         
-        // Titre avec effet néon multicouleur
+        // Titre principal en blanc pur
         String title = "PUZZLE GAME";
-        gc.setFont(Font.font("Arial", FontWeight.BOLD, 56));
-        for (int i = 0; i < title.length(); i++) {
-            // Effet glow
-            gc.setFill(tetrisColors[i % tetrisColors.length].deriveColor(0, 1, 1, 0.3));
-            gc.fillText(String.valueOf(title.charAt(i)), logoX + i * 32 - 2, logoY - 2);
-            gc.fillText(String.valueOf(title.charAt(i)), logoX + i * 32 + 2, logoY + 2);
-            
-            // Texte principal
-            gc.setFill(tetrisColors[i % tetrisColors.length]);
-            gc.fillText(String.valueOf(title.charAt(i)), logoX + i * 32, logoY);
-        }
+        gc.setFont(Font.font("Arial", FontWeight.BOLD, 64));
         
-        // Sous-titre avec effet néon cyan
-        gc.setFill(Color.CYAN.deriveColor(0, 1, 1, 0.4));
+        // Ombre subtile
+        gc.setFill(Color.rgb(50, 50, 50, 0.5));
+        gc.fillText(title, centerX - 195, titleY + 3);
+        
+        // Texte principal blanc
+        gc.setFill(Color.WHITE);
+        gc.fillText(title, centerX - 195, titleY);
+        
+        // Accent subtil cyan sous le titre
+        gc.setStroke(Color.CYAN);
+        gc.setLineWidth(3);
+        gc.strokeLine(centerX - 120, titleY + 20, centerX + 120, titleY + 20);
+        
+        // Sous-titre discret
+        gc.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
+        gc.setFill(Color.rgb(150, 150, 150));
+        String subtitle = "Design Patterns Project";
+        gc.fillText(subtitle, centerX - 90, titleY + 50);
+        
+        // === BOUTONS MINIMALISTES ===
+        double buttonWidth = 280;
+        double buttonHeight = 50;
+        double buttonSpacing = 25;
+        double buttonsStartY = 320;
+        
+        // Bouton START élégant
+        double startY = buttonsStartY;
+        double startX = centerX - buttonWidth / 2;
+        
+        // Ombre portée subtile
+        gc.setFill(Color.rgb(0, 0, 0, 0.3));
+        gc.fillRoundRect(startX + 3, startY + 3, buttonWidth, buttonHeight, 8, 8);
+        
+        // Fond du bouton avec léger gradient simulé
+        gc.setFill(Color.rgb(25, 25, 30));
+        gc.fillRoundRect(startX, startY, buttonWidth, buttonHeight, 8, 8);
+        
+        // Bordure cyan élégante avec pulse subtil
+        double borderAlpha = 0.7 + glowIntensity * 0.3;
+        gc.setStroke(Color.rgb(0, 200, 255, borderAlpha));
+        gc.setLineWidth(2);
+        gc.strokeRoundRect(startX, startY, buttonWidth, buttonHeight, 8, 8);
+        
+        // Texte START centré
         gc.setFont(Font.font("Arial", FontWeight.NORMAL, 20));
-        gc.fillText("DESIGN PATTERNS PROJECT", 150, logoY + 45);
+        gc.setFill(Color.WHITE);
+        gc.fillText("START GAME", startX + 90, startY + 32);
         
-        gc.setFill(Color.CYAN);
-        gc.fillText("DESIGN PATTERNS PROJECT", 150, logoY + 43);
+        // Bouton QUIT élégant
+        double quitY = buttonsStartY + buttonHeight + buttonSpacing;
+        double quitX = centerX - buttonWidth / 2;
         
-        // Blocs décoratifs style Tetris
-        drawDecorativeBlocks(50, 200, Color.CYAN);
-        drawDecorativeBlocks(500, 200, Color.MAGENTA);
-        drawDecorativeBlocks(50, 500, Color.YELLOW);
-        drawDecorativeBlocks(500, 500, Color.LIME);
-        
-        // Zone des boutons centrée
-        double buttonCenterX = canvas.getWidth() / 2;
-        double buttonWidth = 340;
-        double buttonHeight = 55;
-        
-        // Bouton START avec effet néon pulsant
-        double startY = 200;
-        double startX = buttonCenterX - buttonWidth / 2;
-        
-        // Ombre/Glow externe animé
-        double glowSize = 5 + glowIntensity * 8;
-        gc.setFill(Color.LIME.deriveColor(0, 1, 1, 0.3 + glowIntensity * 0.3));
-        gc.fillRect(startX - glowSize, startY - glowSize, buttonWidth + glowSize * 2, buttonHeight + glowSize * 2);
+        // Ombre portée
+        gc.setFill(Color.rgb(0, 0, 0, 0.3));
+        gc.fillRoundRect(quitX + 3, quitY + 3, buttonWidth, buttonHeight, 8, 8);
         
         // Fond du bouton
-        gc.setFill(Color.rgb(0, 80, 0));
-        gc.fillRect(startX, startY, buttonWidth, buttonHeight);
+        gc.setFill(Color.rgb(25, 25, 30));
+        gc.fillRoundRect(quitX, quitY, buttonWidth, buttonHeight, 8, 8);
         
-        // Double bordure néon
-        gc.setStroke(Color.LIME);
-        gc.setLineWidth(5);
-        gc.strokeRect(startX, startY, buttonWidth, buttonHeight);
-        
-        gc.setStroke(Color.LIME.brighter());
+        // Bordure grise élégante
+        gc.setStroke(Color.rgb(100, 100, 100));
         gc.setLineWidth(2);
-        gc.strokeRect(startX + 3, startY + 3, buttonWidth - 6, buttonHeight - 6);
+        gc.strokeRoundRect(quitX, quitY, buttonWidth, buttonHeight, 8, 8);
         
-        // Barre décorative intérieure
-        gc.setFill(Color.LIME.deriveColor(0, 1, 1, 0.5));
-        gc.fillRect(startX + 10, startY + 10, buttonWidth - 20, 3);
+        // Texte QUIT centré
+        gc.setFont(Font.font("Arial", FontWeight.NORMAL, 20));
+        gc.setFill(Color.rgb(200, 200, 200));
+        gc.fillText("EXIT", quitX + 120, quitY + 32);
         
-        // Texte parfaitement centré avec effet glow
-        String startText = "PRESS ENTER";
-        gc.setFont(Font.font("Arial", FontWeight.BOLD, 26));
-        double startTextWidth = gc.getFont().getSize() * startText.length() * 0.58; // Approximation
-        double startTextX = startX + (buttonWidth - startTextWidth) / 2;
-        
-        gc.setFill(Color.LIME.deriveColor(0, 1, 1, 0.6));
-        gc.fillText(startText, startTextX + 2, startY + 38);
-        
-        gc.setFill(Color.WHITE);
-        gc.fillText(startText, startTextX, startY + 36);
-        
-        // Bouton QUIT avec effet néon
-        double quitY = 280;
-        double quitX = buttonCenterX - buttonWidth / 2;
-        
-        // Ombre/Glow externe
-        gc.setFill(Color.RED.deriveColor(0, 1, 1, 0.4));
-        gc.fillRect(quitX - 5, quitY - 5, buttonWidth + 10, buttonHeight + 10);
-        
-        // Fond du bouton
-        gc.setFill(Color.rgb(80, 0, 0));
-        gc.fillRect(quitX, quitY, buttonWidth, buttonHeight);
-        
-        // Double bordure néon
-        gc.setStroke(Color.RED);
-        gc.setLineWidth(5);
-        gc.strokeRect(quitX, quitY, buttonWidth, buttonHeight);
-        
-        gc.setStroke(Color.RED.brighter());
-        gc.setLineWidth(2);
-        gc.strokeRect(quitX + 3, quitY + 3, buttonWidth - 6, buttonHeight - 6);
-        
-        // Barre décorative intérieure
-        gc.setFill(Color.RED.deriveColor(0, 1, 1, 0.5));
-        gc.fillRect(quitX + 10, quitY + 10, buttonWidth - 20, 3);
-        
-        // Texte parfaitement centré avec effet glow
-        String quitText = "PRESS ESC";
-        gc.setFont(Font.font("Arial", FontWeight.BOLD, 26));
-        double quitTextWidth = gc.getFont().getSize() * quitText.length() * 0.58; // Approximation
-        double quitTextX = quitX + (buttonWidth - quitTextWidth) / 2;
-        
-        gc.setFill(Color.RED.deriveColor(0, 1, 1, 0.6));
-        gc.fillText(quitText, quitTextX + 2, quitY + 38);
-        
-        gc.setFill(Color.WHITE);
-        gc.fillText(quitText, quitTextX, quitY + 36);
+        // === FOOTER DISCRET ===
+        gc.setFont(Font.font("Arial", FontWeight.NORMAL, 12));
+        gc.setFill(Color.rgb(80, 80, 80));
+        gc.fillText("© 2025 - Professional Edition", centerX - 95, canvas.getHeight() - 30);
     }
     
-    /**
-     * Dessine des blocs décoratifs style Tetris
-     */
-    private void drawDecorativeBlocks(double x, double y, Color color) {
-        double blockSize = 15;
-        // Forme en L
-        for (int i = 0; i < 3; i++) {
-            renderBlock(x + i * blockSize, y, blockSize, color);
-        }
-        renderBlock(x, y + blockSize, blockSize, color);
-    }
-    
-    /**
-     * Rend un bouton de menu avec style
-     */
-    private void renderMenuButton(String text, double x, double y, Color color) {
-        gc.setFont(Font.font("Arial", FontWeight.NORMAL, 20));
-        double width = 260;
-        double height = 45;
-        double buttonX = x - 10;
-        double buttonY = y - 30;
-        
-        // Ombre
-        gc.setFill(Color.rgb(0, 0, 0, 0.5));
-        gc.fillRoundRect(buttonX + 3, buttonY + 3, width, height, 10, 10);
-        
-        // Fond du bouton
-        gc.setFill(color);
-        gc.fillRoundRect(buttonX, buttonY, width, height, 10, 10);
-        
-        // Bordure
-        gc.setStroke(color.brighter());
-        gc.setLineWidth(2);
-        gc.strokeRoundRect(buttonX, buttonY, width, height, 10, 10);
-        
-        // Texte
-        gc.setFill(Color.WHITE);
-        gc.fillText(text, x, y);
-    }
+
     
     /**
      * Rend un fond noir pur style Tetris classique
