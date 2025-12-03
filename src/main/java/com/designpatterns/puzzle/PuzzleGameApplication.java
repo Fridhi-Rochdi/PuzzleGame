@@ -144,6 +144,8 @@ public class PuzzleGameApplication extends Application {
         
         if (input != null) {
             gameManager.handleInput(input);
+            // Force un rendu immédiat pour feedback instantané
+            gameView.render();
         }
     }
     

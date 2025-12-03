@@ -21,10 +21,15 @@ public class GameView {
     private GraphicsContext gc;
     private GameManager gameManager;
     
-    private static final double BLOCK_SIZE = 30;
-    private static final double GRID_X = 50;
-    private static final double GRID_Y = 50;
-    private static final double HUD_X = 400;
+    private static final double BLOCK_SIZE = 32;
+    private static final double GRID_X = 60;
+    private static final double GRID_Y = 60;
+    private static final double HUD_X = 420;
+    
+    // Animation variables
+    private double menuPulseTime = 0;
+    private double starRotation = 0;
+    private double glowIntensity = 0;
     
     public GameView(Canvas canvas) {
         this.canvas = canvas;
@@ -33,10 +38,15 @@ public class GameView {
     }
     
     /**
-     * Rend la vue complète
+     * Rend la vue complète avec animations
      */
     public void render() {
-        // Efface le canvas avec dégradé
+        // Update animations
+        menuPulseTime += 0.05;
+        starRotation += 2;
+        glowIntensity = Math.abs(Math.sin(menuPulseTime));
+        
+        // Efface le canvas avec fond noir
         renderGradientBackground();
         
         GameContext context = gameManager.getGameContext();
@@ -63,17 +73,27 @@ public class GameView {
     }
     
     /**
-     * Rend le menu principal style Tetris moderne avec effets néon
+     * Rend le menu principal style Tetris moderne avec effets néon et animations
      */
     private void renderMenu() {
-        // Grille décorative en arrière-plan
+        // Grille décorative animée en arrière-plan
         gc.setStroke(Color.rgb(30, 30, 30));
         gc.setLineWidth(1);
-        for (int i = 0; i < canvas.getWidth(); i += 30) {
+        double offset = (menuPulseTime * 5) % 30;
+        for (int i = -(int)offset; i < canvas.getWidth(); i += 30) {
             gc.strokeLine(i, 0, i, canvas.getHeight());
         }
-        for (int i = 0; i < canvas.getHeight(); i += 30) {
+        for (int i = -(int)offset; i < canvas.getHeight(); i += 30) {
             gc.strokeLine(0, i, canvas.getWidth(), i);
+        }
+        
+        // Étoiles scintillantes en arrière-plan
+        for (int i = 0; i < 30; i++) {
+            double starX = (i * 73) % canvas.getWidth();
+            double starY = (i * 97 + menuPulseTime * 2) % canvas.getHeight();
+            double starAlpha = (Math.sin(menuPulseTime + i) + 1) / 2 * 0.5;
+            gc.setFill(Color.rgb(255, 255, 255, starAlpha));
+            gc.fillOval(starX, starY, 2, 2);
         }
         
         // Logo "TETRIS" style avec blocs colorés
@@ -117,13 +137,14 @@ public class GameView {
         double buttonWidth = 340;
         double buttonHeight = 55;
         
-        // Bouton START avec effet néon
+        // Bouton START avec effet néon pulsant
         double startY = 200;
         double startX = buttonCenterX - buttonWidth / 2;
         
-        // Ombre/Glow externe
-        gc.setFill(Color.LIME.deriveColor(0, 1, 1, 0.4));
-        gc.fillRect(startX - 5, startY - 5, buttonWidth + 10, buttonHeight + 10);
+        // Ombre/Glow externe animé
+        double glowSize = 5 + glowIntensity * 8;
+        gc.setFill(Color.LIME.deriveColor(0, 1, 1, 0.3 + glowIntensity * 0.3));
+        gc.fillRect(startX - glowSize, startY - glowSize, buttonWidth + glowSize * 2, buttonHeight + glowSize * 2);
         
         // Fond du bouton
         gc.setFill(Color.rgb(0, 80, 0));
@@ -252,18 +273,22 @@ public class GameView {
     }
     
     /**
-     * Rend la grille de jeu style Tetris classique
+     * Rend la grille de jeu style Tetris classique amélioré
      */
     private void renderGrid(GameGrid grid) {
         double gridWidth = grid.getWidth() * BLOCK_SIZE;
         double gridHeight = grid.getHeight() * BLOCK_SIZE;
         
+        // Ombre portée de la grille
+        gc.setFill(Color.rgb(0, 0, 0, 0.5));
+        gc.fillRect(GRID_X + 4, GRID_Y + 4, gridWidth, gridHeight);
+        
         // Fond noir pur de la grille
         gc.setFill(Color.BLACK);
         gc.fillRect(GRID_X, GRID_Y, gridWidth, gridHeight);
         
-        // Grille subtile en gris très foncé
-        gc.setStroke(Color.rgb(30, 30, 30));
+        // Grille subtile en gris très foncé avec effet de profondeur
+        gc.setStroke(Color.rgb(25, 25, 25));
         gc.setLineWidth(1);
         for (int i = 0; i <= grid.getHeight(); i++) {
             double y = GRID_Y + i * BLOCK_SIZE;
@@ -274,10 +299,26 @@ public class GameView {
             gc.strokeLine(x, GRID_Y, x, GRID_Y + gridHeight);
         }
         
-        // Bordure blanche épaisse comme le vrai Tetris
+        // Bordure intérieure légère
+        gc.setStroke(Color.rgb(40, 40, 40));
+        gc.setLineWidth(1);
+        gc.strokeRect(GRID_X + 1, GRID_Y + 1, gridWidth - 2, gridHeight - 2);
+        
+        // Triple bordure style arcade
+        // Bordure externe noire épaisse
+        gc.setStroke(Color.rgb(20, 20, 20));
+        gc.setLineWidth(6);
+        gc.strokeRect(GRID_X - 3, GRID_Y - 3, gridWidth + 6, gridHeight + 6);
+        
+        // Bordure principale blanche
         gc.setStroke(Color.WHITE);
-        gc.setLineWidth(4);
+        gc.setLineWidth(3);
         gc.strokeRect(GRID_X - 2, GRID_Y - 2, gridWidth + 4, gridHeight + 4);
+        
+        // Bordure interne cyan lumineuse
+        gc.setStroke(Color.CYAN.deriveColor(0, 1, 1, 0.7));
+        gc.setLineWidth(1);
+        gc.strokeRect(GRID_X, GRID_Y, gridWidth, gridHeight);
         
         // Blocs placés
         Color[][] gridData = grid.getGrid();
@@ -294,42 +335,68 @@ public class GameView {
     }
     
     /**
-     * Rend un bloc individuel style Tetris classique
+     * Rend un bloc individuel style Tetris avec effet 3D amélioré
      */
     private void renderBlock(double x, double y, double size, Color color) {
-        // Bloc coloré simple
+        // Ombre portée
+        gc.setFill(Color.rgb(0, 0, 0, 0.3));
+        gc.fillRect(x + 2, y + 2, size - 1, size - 1);
+        
+        // Fond principal avec dégradé simulé
         gc.setFill(color);
         gc.fillRect(x + 1, y + 1, size - 2, size - 2);
         
-        // Effet 3D simple mais efficace
-        // Highlight en haut et à gauche
-        gc.setStroke(color.brighter().brighter());
-        gc.setLineWidth(3);
-        gc.strokeLine(x + 2, y + 2, x + size - 3, y + 2);
-        gc.strokeLine(x + 2, y + 2, x + 2, y + size - 3);
+        // Highlight lumineux en haut à gauche
+        gc.setFill(color.brighter().brighter().brighter());
+        gc.fillRect(x + 2, y + 2, size - 8, 3);
+        gc.fillRect(x + 2, y + 2, 3, size - 8);
         
-        // Ombre en bas et à droite
-        gc.setStroke(color.darker().darker());
-        gc.setLineWidth(3);
-        gc.strokeLine(x + size - 2, y + 3, x + size - 2, y + size - 2);
-        gc.strokeLine(x + 3, y + size - 2, x + size - 2, y + size - 2);
+        // Reflet secondaire
+        gc.setFill(color.brighter());
+        gc.fillRect(x + 4, y + 6, size - 12, 1);
+        gc.fillRect(x + 6, y + 4, 1, size - 12);
         
-        // Bordure noire fine
+        // Ombre profonde en bas à droite
+        gc.setFill(color.darker().darker().darker());
+        gc.fillRect(x + size - 5, y + 5, 3, size - 6);
+        gc.fillRect(x + 5, y + size - 5, size - 6, 3);
+        
+        // Ombre secondaire
+        gc.setFill(color.darker());
+        gc.fillRect(x + size - 8, y + 8, 2, size - 10);
+        gc.fillRect(x + 8, y + size - 8, size - 10, 2);
+        
+        // Bordure externe nette
         gc.setStroke(Color.BLACK);
-        gc.setLineWidth(1);
+        gc.setLineWidth(1.5);
         gc.strokeRect(x + 0.5, y + 0.5, size - 1, size - 1);
+        
+        // Bordure interne subtile
+        gc.setStroke(color.darker().darker());
+        gc.setLineWidth(0.5);
+        gc.strokeRect(x + 1.5, y + 1.5, size - 3, size - 3);
     }
     
     /**
-     * Rend la pièce active
+     * Rend la pièce active avec rotation
      */
     private void renderCurrentPiece(ActivePiece piece) {
         if (piece == null) return;
         
-        double x = GRID_X + piece.getX() * BLOCK_SIZE;
-        double y = GRID_Y + piece.getY() * BLOCK_SIZE;
+        // Obtient la forme avec rotation appliquée
+        int[][] shape = piece.getCurrentShape();
+        Color color = piece.getPiece().getColor();
         
-        piece.getPiece().render(gc, x, y, BLOCK_SIZE);
+        // Rend chaque bloc de la pièce
+        for (int row = 0; row < shape.length; row++) {
+            for (int col = 0; col < shape[row].length; col++) {
+                if (shape[row][col] != 0) {
+                    double blockX = GRID_X + (piece.getX() + col) * BLOCK_SIZE;
+                    double blockY = GRID_Y + (piece.getY() + row) * BLOCK_SIZE;
+                    renderBlock(blockX, blockY, BLOCK_SIZE, color);
+                }
+            }
+        }
     }
     
     /**
@@ -416,48 +483,72 @@ public class GameView {
     }
     
     /**
-     * Rend un panel HUD moderne avec effet néon
+     * Rend un panel HUD moderne avec effet néon amélioré
      */
     private void renderModernHUDPanel(String label, String value, double x, double y, Color accentColor) {
         double panelWidth = 210;
-        double panelHeight = 80;
+        double panelHeight = 85;
         
-        // Effet glow extérieur
-        gc.setFill(accentColor.deriveColor(0, 1, 1, 0.2));
-        gc.fillRect(x - 8, y - 8, panelWidth + 6, panelHeight + 6);
+        // Ombre portée
+        gc.setFill(Color.rgb(0, 0, 0, 0.5));
+        gc.fillRoundRect(x - 3, y - 1, panelWidth, panelHeight, 8, 8);
         
-        // Fond noir avec bordure intérieure
-        gc.setFill(Color.BLACK);
-        gc.fillRect(x - 5, y - 5, panelWidth, panelHeight);
+        // Triple glow extérieur animé
+        double glowPulse = 0.15 + glowIntensity * 0.15;
+        gc.setFill(accentColor.deriveColor(0, 1, 1, glowPulse * 0.3));
+        gc.fillRoundRect(x - 12, y - 12, panelWidth + 14, panelHeight + 14, 10, 10);
         
-        // Double bordure pour effet néon
+        gc.setFill(accentColor.deriveColor(0, 1, 1, glowPulse * 0.5));
+        gc.fillRoundRect(x - 8, y - 8, panelWidth + 8, panelHeight + 8, 9, 9);
+        
+        gc.setFill(accentColor.deriveColor(0, 1, 1, glowPulse));
+        gc.fillRoundRect(x - 5, y - 5, panelWidth + 2, panelHeight + 2, 8, 8);
+        
+        // Fond noir profond
+        gc.setFill(Color.rgb(8, 8, 12));
+        gc.fillRoundRect(x - 4, y - 4, panelWidth, panelHeight, 8, 8);
+        
+        // Bordure principale néon
         gc.setStroke(accentColor);
-        gc.setLineWidth(4);
-        gc.strokeRect(x - 5, y - 5, panelWidth, panelHeight);
+        gc.setLineWidth(3);
+        gc.strokeRoundRect(x - 4, y - 4, panelWidth, panelHeight, 8, 8);
         
+        // Bordure intérieure brillante
+        gc.setStroke(accentColor.brighter().brighter());
+        gc.setLineWidth(1);
+        gc.strokeRoundRect(x - 2, y - 2, panelWidth - 4, panelHeight - 4, 7, 7);
+        
+        // Lignes décoratives animées
+        gc.setStroke(accentColor.deriveColor(0, 1, 1, 0.4 + glowIntensity * 0.3));
+        gc.setLineWidth(2);
+        gc.strokeLine(x + 5, y + 3, x + panelWidth - 15, y + 3);
+        
+        // Coins décoratifs
         gc.setStroke(accentColor.brighter());
-        gc.setLineWidth(1.5);
-        gc.strokeRect(x - 3, y - 3, panelWidth - 4, panelHeight - 4);
+        gc.setLineWidth(2);
+        gc.strokeLine(x - 3, y + 8, x - 3, y - 3);
+        gc.strokeLine(x - 3, y - 3, x + 8, y - 3);
         
-        // Barre décorative en haut
+        // Label avec multi-glow
+        gc.setFont(Font.font("Arial", FontWeight.BOLD, 16));
         gc.setFill(accentColor.deriveColor(0, 1, 1, 0.5));
-        gc.fillRect(x, y, panelWidth - 10, 3);
-        
-        // Label avec effet glow
-        gc.setFill(accentColor.deriveColor(0, 1, 1, 0.4));
-        gc.setFont(Font.font("Arial", FontWeight.BOLD, 15));
+        gc.fillText(label, x + 7, y + 23);
+        gc.setFill(accentColor.deriveColor(0, 1, 1, 0.7));
         gc.fillText(label, x + 6, y + 22);
-        
         gc.setFill(Color.WHITE);
-        gc.fillText(label, x + 5, y + 20);
+        gc.fillText(label, x + 5, y + 21);
         
-        // Valeur avec effet néon prononcé
-        gc.setFill(accentColor.deriveColor(0, 1, 1, 0.5));
-        gc.setFont(Font.font("Arial", FontWeight.BOLD, 38));
-        gc.fillText(value, x + 12, y + 62);
-        
-        gc.setFill(accentColor);
-        gc.fillText(value, x + 10, y + 60);
+        // Valeur avec triple ombre néon
+        gc.setFont(Font.font("Arial", FontWeight.BOLD, 42));
+        gc.setFill(accentColor.deriveColor(0, 1, 1, 0.3));
+        gc.fillText(value, x + 14, y + 67);
+        gc.setFill(accentColor.deriveColor(0, 1, 1, 0.6));
+        gc.fillText(value, x + 12, y + 65);
+        gc.setFill(accentColor.brighter());
+        gc.fillText(value, x + 10, y + 63);
+        gc.setFill(Color.WHITE);
+        gc.setFont(Font.font("Arial", FontWeight.BOLD, 40));
+        gc.fillText(value, x + 10, y + 62);
     }
     
     /**
