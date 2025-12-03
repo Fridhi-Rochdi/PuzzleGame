@@ -227,26 +227,15 @@ public class GameView {
             gc.strokeLine(x, GRID_Y, x, GRID_Y + gridHeight);
         }
         
-        // Bordure intérieure légère
-        gc.setStroke(Color.rgb(40, 40, 40));
-        gc.setLineWidth(1);
-        gc.strokeRect(GRID_X + 1, GRID_Y + 1, gridWidth - 2, gridHeight - 2);
-        
-        // Triple bordure style arcade
-        // Bordure externe noire épaisse
-        gc.setStroke(Color.rgb(20, 20, 20));
-        gc.setLineWidth(6);
-        gc.strokeRect(GRID_X - 3, GRID_Y - 3, gridWidth + 6, gridHeight + 6);
-        
-        // Bordure principale blanche
-        gc.setStroke(Color.WHITE);
-        gc.setLineWidth(3);
-        gc.strokeRect(GRID_X - 2, GRID_Y - 2, gridWidth + 4, gridHeight + 4);
-        
-        // Bordure interne cyan lumineuse
-        gc.setStroke(Color.CYAN.deriveColor(0, 1, 1, 0.7));
-        gc.setLineWidth(1);
+        // Bordure minimaliste élégante
+        gc.setStroke(Color.rgb(60, 60, 60));
+        gc.setLineWidth(2);
         gc.strokeRect(GRID_X, GRID_Y, gridWidth, gridHeight);
+        
+        // Accent subtil cyan en haut
+        gc.setStroke(Color.rgb(0, 150, 200, 0.6));
+        gc.setLineWidth(2);
+        gc.strokeLine(GRID_X, GRID_Y, GRID_X + gridWidth, GRID_Y);
         
         // Blocs placés
         Color[][] gridData = grid.getGrid();
@@ -263,46 +252,25 @@ public class GameView {
     }
     
     /**
-     * Rend un bloc individuel style Tetris avec effet 3D amélioré
+     * Rend un bloc individuel avec design plat minimaliste
      */
     private void renderBlock(double x, double y, double size, Color color) {
-        // Ombre portée
-        gc.setFill(Color.rgb(0, 0, 0, 0.3));
-        gc.fillRect(x + 2, y + 2, size - 1, size - 1);
+        // Ombre portée subtile
+        gc.setFill(Color.rgb(0, 0, 0, 0.2));
+        gc.fillRect(x + 1.5, y + 1.5, size - 1, size - 1);
         
-        // Fond principal avec dégradé simulé
+        // Fond principal
         gc.setFill(color);
         gc.fillRect(x + 1, y + 1, size - 2, size - 2);
         
-        // Highlight lumineux en haut à gauche
-        gc.setFill(color.brighter().brighter().brighter());
-        gc.fillRect(x + 2, y + 2, size - 8, 3);
-        gc.fillRect(x + 2, y + 2, 3, size - 8);
+        // Highlight discret en haut
+        gc.setFill(color.brighter().deriveColor(0, 1, 1, 0.3));
+        gc.fillRect(x + 2, y + 2, size - 4, 2);
         
-        // Reflet secondaire
-        gc.setFill(color.brighter());
-        gc.fillRect(x + 4, y + 6, size - 12, 1);
-        gc.fillRect(x + 6, y + 4, 1, size - 12);
-        
-        // Ombre profonde en bas à droite
-        gc.setFill(color.darker().darker().darker());
-        gc.fillRect(x + size - 5, y + 5, 3, size - 6);
-        gc.fillRect(x + 5, y + size - 5, size - 6, 3);
-        
-        // Ombre secondaire
-        gc.setFill(color.darker());
-        gc.fillRect(x + size - 8, y + 8, 2, size - 10);
-        gc.fillRect(x + 8, y + size - 8, size - 10, 2);
-        
-        // Bordure externe nette
-        gc.setStroke(Color.BLACK);
-        gc.setLineWidth(1.5);
+        // Bordure élégante
+        gc.setStroke(Color.rgb(0, 0, 0, 0.4));
+        gc.setLineWidth(1);
         gc.strokeRect(x + 0.5, y + 0.5, size - 1, size - 1);
-        
-        // Bordure interne subtile
-        gc.setStroke(color.darker().darker());
-        gc.setLineWidth(0.5);
-        gc.strokeRect(x + 1.5, y + 1.5, size - 3, size - 3);
     }
     
     /**
@@ -333,50 +301,39 @@ public class GameView {
     private void renderHUD(GameContext context) {
         double y = GRID_Y;
         
-        // Panel Score avec effet néon cyan
-        renderModernHUDPanel("SCORE", String.valueOf(context.getScore()), HUD_X, y, Color.CYAN);
+        // Panel Score minimaliste
+        renderModernHUDPanel("SCORE", String.valueOf(context.getScore()), HUD_X, y, Color.rgb(0, 200, 255));
         
         y += 95;
-        // Panel Level avec effet néon orange
-        renderModernHUDPanel("LEVEL", String.valueOf(context.getLevel()), HUD_X, y, Color.ORANGE);
+        // Panel Level minimaliste
+        renderModernHUDPanel("LEVEL", String.valueOf(context.getLevel()), HUD_X, y, Color.rgb(100, 150, 200));
         
         y += 95;
-        // Panel Lines avec effet néon magenta
-        renderModernHUDPanel("LINES", String.valueOf(context.getLinesCleared()), HUD_X, y, Color.MAGENTA);
+        // Panel Lines minimaliste
+        renderModernHUDPanel("LINES", String.valueOf(context.getLinesCleared()), HUD_X, y, Color.rgb(150, 150, 150));
         
-        // Panel Contrôles style moderne
+        // Panel Contrôles minimaliste
         y += 105;
         double controlsWidth = 210;
         double controlsHeight = 145;
         
-        // Effet glow
-        gc.setFill(Color.LIME.deriveColor(0, 1, 1, 0.2));
-        gc.fillRect(HUD_X - 8, y - 3, controlsWidth + 6, controlsHeight + 6);
+        // Ombre portée
+        gc.setFill(Color.rgb(0, 0, 0, 0.3));
+        gc.fillRoundRect(HUD_X - 3, y + 2, controlsWidth, controlsHeight, 8, 8);
         
-        // Fond noir
-        gc.setFill(Color.BLACK);
-        gc.fillRect(HUD_X - 5, y, controlsWidth, controlsHeight);
+        // Fond sombre
+        gc.setFill(Color.rgb(20, 20, 25));
+        gc.fillRoundRect(HUD_X - 4, y, controlsWidth, controlsHeight, 8, 8);
         
-        // Double bordure néon
-        gc.setStroke(Color.LIME);
-        gc.setLineWidth(4);
-        gc.strokeRect(HUD_X - 5, y, controlsWidth, controlsHeight);
+        // Bordure simple élégante
+        gc.setStroke(Color.rgb(80, 80, 80));
+        gc.setLineWidth(2);
+        gc.strokeRoundRect(HUD_X - 4, y, controlsWidth, controlsHeight, 8, 8);
         
-        gc.setStroke(Color.LIME.brighter());
-        gc.setLineWidth(1.5);
-        gc.strokeRect(HUD_X - 3, y + 2, controlsWidth - 4, controlsHeight - 4);
-        
-        // Barre décorative
-        gc.setFill(Color.LIME.deriveColor(0, 1, 1, 0.5));
-        gc.fillRect(HUD_X, y + 5, controlsWidth - 10, 3);
-        
-        // Titre avec glow
-        gc.setFill(Color.LIME.deriveColor(0, 1, 1, 0.4));
-        gc.setFont(Font.font("Arial", FontWeight.BOLD, 16));
-        gc.fillText("⌨ CONTROLS", HUD_X + 6, y + 27);
-        
-        gc.setFill(Color.WHITE);
-        gc.fillText("⌨ CONTROLS", HUD_X + 5, y + 25);
+        // Titre sobre
+        gc.setFont(Font.font("Arial", FontWeight.BOLD, 14));
+        gc.setFill(Color.rgb(180, 180, 180));
+        gc.fillText("CONTROLS", HUD_X + 5, y + 22);
         
         // Contrôles avec icônes colorés
         String[][] controls = {
@@ -387,95 +344,62 @@ public class GameView {
             {"P", "Pause"}
         };
         
-        gc.setFont(Font.font("Arial", FontWeight.NORMAL, 13));
+        gc.setFont(Font.font("Arial", FontWeight.NORMAL, 12));
         for (int i = 0; i < controls.length; i++) {
             double lineY = y + 50 + i * 18;
             
-            // Touche avec fond
-            gc.setFill(Color.rgb(40, 40, 40));
-            gc.fillRect(HUD_X + 5, lineY - 12, 40, 16);
+            // Touche minimaliste
+            gc.setFill(Color.rgb(35, 35, 40));
+            gc.fillRoundRect(HUD_X + 5, lineY - 12, 40, 16, 4, 4);
             
-            gc.setStroke(Color.LIME.deriveColor(0, 0.8, 0.8, 1));
+            gc.setStroke(Color.rgb(100, 100, 100));
             gc.setLineWidth(1);
-            gc.strokeRect(HUD_X + 5, lineY - 12, 40, 16);
+            gc.strokeRoundRect(HUD_X + 5, lineY - 12, 40, 16, 4, 4);
             
-            gc.setFill(Color.LIME);
-            gc.setFont(Font.font("Arial", FontWeight.BOLD, 12));
+            gc.setFill(Color.rgb(200, 200, 200));
+            gc.setFont(Font.font("Arial", FontWeight.BOLD, 11));
             gc.fillText(controls[i][0], HUD_X + 10, lineY);
             
             // Action
-            gc.setFill(Color.WHITE);
+            gc.setFill(Color.rgb(160, 160, 160));
             gc.setFont(Font.font("Arial", FontWeight.NORMAL, 12));
             gc.fillText(controls[i][1], HUD_X + 55, lineY);
         }
     }
     
     /**
-     * Rend un panel HUD moderne avec effet néon amélioré
+     * Rend un panel HUD professionnel minimaliste
      */
     private void renderModernHUDPanel(String label, String value, double x, double y, Color accentColor) {
         double panelWidth = 210;
         double panelHeight = 85;
         
-        // Ombre portée
-        gc.setFill(Color.rgb(0, 0, 0, 0.5));
-        gc.fillRoundRect(x - 3, y - 1, panelWidth, panelHeight, 8, 8);
+        // Ombre portée subtile
+        gc.setFill(Color.rgb(0, 0, 0, 0.3));
+        gc.fillRoundRect(x - 3, y + 2, panelWidth, panelHeight, 8, 8);
         
-        // Triple glow extérieur animé
-        double glowPulse = 0.15 + glowIntensity * 0.15;
-        gc.setFill(accentColor.deriveColor(0, 1, 1, glowPulse * 0.3));
-        gc.fillRoundRect(x - 12, y - 12, panelWidth + 14, panelHeight + 14, 10, 10);
+        // Fond sombre
+        gc.setFill(Color.rgb(20, 20, 25));
+        gc.fillRoundRect(x - 4, y, panelWidth, panelHeight, 8, 8);
         
-        gc.setFill(accentColor.deriveColor(0, 1, 1, glowPulse * 0.5));
-        gc.fillRoundRect(x - 8, y - 8, panelWidth + 8, panelHeight + 8, 9, 9);
-        
-        gc.setFill(accentColor.deriveColor(0, 1, 1, glowPulse));
-        gc.fillRoundRect(x - 5, y - 5, panelWidth + 2, panelHeight + 2, 8, 8);
-        
-        // Fond noir profond
-        gc.setFill(Color.rgb(8, 8, 12));
-        gc.fillRoundRect(x - 4, y - 4, panelWidth, panelHeight, 8, 8);
-        
-        // Bordure principale néon
-        gc.setStroke(accentColor);
-        gc.setLineWidth(3);
-        gc.strokeRoundRect(x - 4, y - 4, panelWidth, panelHeight, 8, 8);
-        
-        // Bordure intérieure brillante
-        gc.setStroke(accentColor.brighter().brighter());
-        gc.setLineWidth(1);
-        gc.strokeRoundRect(x - 2, y - 2, panelWidth - 4, panelHeight - 4, 7, 7);
-        
-        // Lignes décoratives animées
-        gc.setStroke(accentColor.deriveColor(0, 1, 1, 0.4 + glowIntensity * 0.3));
+        // Bordure élégante avec accent de couleur
+        gc.setStroke(accentColor.deriveColor(0, 1, 1, 0.5));
         gc.setLineWidth(2);
-        gc.strokeLine(x + 5, y + 3, x + panelWidth - 15, y + 3);
+        gc.strokeRoundRect(x - 4, y, panelWidth, panelHeight, 8, 8);
         
-        // Coins décoratifs
-        gc.setStroke(accentColor.brighter());
+        // Ligne accent en haut
+        gc.setStroke(accentColor.deriveColor(0, 1, 1, 0.7));
         gc.setLineWidth(2);
-        gc.strokeLine(x - 3, y + 8, x - 3, y - 3);
-        gc.strokeLine(x - 3, y - 3, x + 8, y - 3);
+        gc.strokeLine(x + 5, y + 2, x + 60, y + 2);
         
-        // Label avec multi-glow
-        gc.setFont(Font.font("Arial", FontWeight.BOLD, 16));
-        gc.setFill(accentColor.deriveColor(0, 1, 1, 0.5));
-        gc.fillText(label, x + 7, y + 23);
-        gc.setFill(accentColor.deriveColor(0, 1, 1, 0.7));
-        gc.fillText(label, x + 6, y + 22);
-        gc.setFill(Color.WHITE);
-        gc.fillText(label, x + 5, y + 21);
+        // Label sobre
+        gc.setFont(Font.font("Arial", FontWeight.NORMAL, 14));
+        gc.setFill(Color.rgb(160, 160, 160));
+        gc.fillText(label, x + 5, y + 22);
         
-        // Valeur avec triple ombre néon
-        gc.setFont(Font.font("Arial", FontWeight.BOLD, 42));
-        gc.setFill(accentColor.deriveColor(0, 1, 1, 0.3));
-        gc.fillText(value, x + 14, y + 67);
-        gc.setFill(accentColor.deriveColor(0, 1, 1, 0.6));
-        gc.fillText(value, x + 12, y + 65);
-        gc.setFill(accentColor.brighter());
-        gc.fillText(value, x + 10, y + 63);
+        // Valeur élégante
+        gc.setFont(Font.font("Arial", FontWeight.BOLD, 36));
         gc.setFill(Color.WHITE);
-        gc.setFont(Font.font("Arial", FontWeight.BOLD, 40));
         gc.fillText(value, x + 10, y + 62);
     }
     
@@ -487,7 +411,7 @@ public class GameView {
     }
     
     /**
-     * Rend la pièce suivante avec effet néon
+     * Rend la pièce suivante avec design minimaliste
      */
     private void renderNextPiece(PuzzlePiece nextPiece) {
         if (nextPiece == null) return;
@@ -497,34 +421,28 @@ public class GameView {
         double panelWidth = 210;
         double panelHeight = 140;
         
-        // Effet glow extérieur
-        gc.setFill(Color.YELLOW.deriveColor(0, 1, 1, 0.2));
-        gc.fillRect(x - 8, y - 3, panelWidth + 6, panelHeight + 6);
+        // Ombre portée
+        gc.setFill(Color.rgb(0, 0, 0, 0.3));
+        gc.fillRoundRect(x - 3, y + 2, panelWidth, panelHeight, 8, 8);
         
-        // Fond noir
-        gc.setFill(Color.BLACK);
-        gc.fillRect(x - 5, y, panelWidth, panelHeight);
+        // Fond sombre
+        gc.setFill(Color.rgb(20, 20, 25));
+        gc.fillRoundRect(x - 4, y, panelWidth, panelHeight, 8, 8);
         
-        // Double bordure néon jaune
-        gc.setStroke(Color.YELLOW);
-        gc.setLineWidth(4);
-        gc.strokeRect(x - 5, y, panelWidth, panelHeight);
+        // Bordure élégante
+        gc.setStroke(Color.rgb(100, 150, 200, 0.6));
+        gc.setLineWidth(2);
+        gc.strokeRoundRect(x - 4, y, panelWidth, panelHeight, 8, 8);
         
-        gc.setStroke(Color.YELLOW.brighter());
-        gc.setLineWidth(1.5);
-        gc.strokeRect(x - 3, y + 2, panelWidth - 4, panelHeight - 4);
+        // Ligne accent
+        gc.setStroke(Color.rgb(100, 150, 200, 0.8));
+        gc.setLineWidth(2);
+        gc.strokeLine(x + 5, y + 2, x + 80, y + 2);
         
-        // Barre décorative
-        gc.setFill(Color.YELLOW.deriveColor(0, 1, 1, 0.5));
-        gc.fillRect(x, y + 5, panelWidth - 10, 3);
-        
-        // Titre avec glow
-        gc.setFill(Color.YELLOW.deriveColor(0, 1, 1, 0.4));
-        gc.setFont(Font.font("Arial", FontWeight.BOLD, 16));
-        gc.fillText("▶ NEXT PIECE", x + 6, y + 27);
-        
-        gc.setFill(Color.WHITE);
-        gc.fillText("▶ NEXT PIECE", x + 5, y + 25);
+        // Titre sobre
+        gc.setFont(Font.font("Arial", FontWeight.NORMAL, 14));
+        gc.setFill(Color.rgb(160, 160, 160));
+        gc.fillText("NEXT PIECE", x + 5, y + 22);
         
         // Zone de prévisualisation avec bordure
         gc.setFill(Color.rgb(10, 10, 10));
